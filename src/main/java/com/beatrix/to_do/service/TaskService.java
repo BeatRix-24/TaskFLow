@@ -29,25 +29,31 @@ public class TaskService {
         this.userRepository = userRepository;
     }
 
-    public Task createTask(Integer userId, String taskDiscription){
+    public Task createTask(String taskDescription){
         User user = getCurrentUser();
 
         Task task = Task.builder()
-                .task(taskDiscription)
+                .task(taskDescription)
                 .user(user)
                 .build();
 
         return taskRepository.save(task);
     }
 
-    public List<Task> getUserTasks(Integer userId){
-        User user =getCurrentUser();
+    public List<Task> getCurrentUserTasks(){
+        User user = getCurrentUser();
         return taskRepository.findByUserId(user.getId());
     }
 
     public Task markTaskDone(Integer taskId){
+        User user = getCurrentUser();
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(()-> new RuntimeException("Task not found"));
+        
+        if (!task.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Not authorized to modify this task");
+        }
+        
         task.setDone(true);
         return taskRepository.save(task);
     }

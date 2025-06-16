@@ -16,16 +16,16 @@ public class TaskController {
     public TaskController(TaskService taskService){
         this.taskService = taskService;
     }
+
     @PostMapping("/create")
-    public ResponseEntity<Task> createTask(@RequestParam Integer userId,
-                                           @RequestParam String task){
-        Task newTask = taskService.createTask(userId,task);
+    public ResponseEntity<Task> createTask(@RequestParam String task){
+        Task newTask = taskService.createTask(task);
         return ResponseEntity.ok(newTask);
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Task>> getUserTask(@PathVariable Integer userId){
-        return ResponseEntity.ok(taskService.getUserTasks(userId));
+    public ResponseEntity<List<Task>> getMyTasks(){
+        return ResponseEntity.ok(taskService.getCurrentUserTasks());
     }
 
     @PostMapping("/{taskId}/done")
