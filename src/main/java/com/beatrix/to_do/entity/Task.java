@@ -30,7 +30,6 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", nullable = false)
-    @JsonManagedReference
     private User user;
 }
 

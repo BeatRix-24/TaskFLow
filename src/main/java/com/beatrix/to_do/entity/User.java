@@ -33,7 +33,6 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
     private List<Task> tasks = new ArrayList<>();
 
     @Override
