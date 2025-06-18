@@ -1,4 +1,4 @@
-package com.beatrix.to_do.auth;
+package com.beatrix.to_do.dto.auth;
 
 
 import lombok.AllArgsConstructor;

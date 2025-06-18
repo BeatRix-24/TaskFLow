@@ -1,4 +1,5 @@
-package com.beatrix.to_do.auth;
+package com.beatrix.to_do.dto.auth;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationRequest {
+public class RegisterRequest {
+
+    private String firstname;
+    private String lastname;
     private String email;
     private String password;
+
 }

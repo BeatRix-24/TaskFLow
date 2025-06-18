@@ -1,8 +1,8 @@
 package com.beatrix.to_do.service;
 
-import com.beatrix.to_do.auth.AuthenticationRequest;
-import com.beatrix.to_do.auth.AuthenticationResponse;
-import com.beatrix.to_do.auth.RegisterRequest;
+import com.beatrix.to_do.dto.auth.AuthenticationRequest;
+import com.beatrix.to_do.dto.auth.AuthenticationResponse;
+import com.beatrix.to_do.dto.auth.RegisterRequest;
 import com.beatrix.to_do.entity.Role;
 import com.beatrix.to_do.entity.User;
 import com.beatrix.to_do.repository.UserRepository;

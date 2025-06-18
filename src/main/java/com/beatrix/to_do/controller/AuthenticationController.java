@@ -1,9 +1,9 @@
 package com.beatrix.to_do.controller;
 
 
-import com.beatrix.to_do.auth.AuthenticationRequest;
-import com.beatrix.to_do.auth.AuthenticationResponse;
-import com.beatrix.to_do.auth.RegisterRequest;
+import com.beatrix.to_do.dto.auth.AuthenticationRequest;
+import com.beatrix.to_do.dto.auth.AuthenticationResponse;
+import com.beatrix.to_do.dto.auth.RegisterRequest;
 import com.beatrix.to_do.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
