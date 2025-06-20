@@ -5,6 +5,8 @@ import com.beatrix.to_do.dto.auth.AuthenticationRequest;
 import com.beatrix.to_do.dto.auth.AuthenticationResponse;
 import com.beatrix.to_do.dto.auth.RegisterRequest;
 import com.beatrix.to_do.service.AuthenticationService;
+import com.beatrix.to_do.service.RefreshTokenService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,17 +20,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final RefreshTokenService refreshTokenService;
+
     @PostMapping("/sign-up")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+    public ResponseEntity<AuthenticationResponse> signUp(
+            @RequestBody RegisterRequest request,
+            HttpServletRequest httpRequest
             ){
-        return ResponseEntity.ok(service.register(request));
+        return ResponseEntity.ok(service.register(request,httpRequest));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody AuthenticationRequest request
+    public ResponseEntity<AuthenticationResponse> login(
+            @RequestBody AuthenticationRequest request,
+            HttpServletRequest httpRequest
     ){
-        return ResponseEntity.ok(service.authenticate(request));
+        return ResponseEntity.ok(service.authenticate(request,httpRequest));
     }
 }
