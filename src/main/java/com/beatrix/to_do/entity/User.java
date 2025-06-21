@@ -30,8 +30,6 @@ public class User implements UserDetails {
     private String email;
     private String password;
     private boolean isVerified = false;
-    private String otpCode;
-    private LocalDateTime otpExpiration;
 
     @Enumerated(EnumType.STRING)
     private Role role;

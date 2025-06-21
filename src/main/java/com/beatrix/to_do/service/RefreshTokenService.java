@@ -5,12 +5,12 @@ import com.beatrix.to_do.entity.RefreshToken;
 import com.beatrix.to_do.entity.User;
 import com.beatrix.to_do.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
+@Service
 @RequiredArgsConstructor
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
