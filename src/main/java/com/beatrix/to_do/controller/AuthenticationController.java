@@ -4,6 +4,7 @@ package com.beatrix.to_do.controller;
 import com.beatrix.to_do.dto.auth.AuthenticationRequest;
 import com.beatrix.to_do.dto.auth.AuthenticationResponse;
 import com.beatrix.to_do.dto.auth.RegisterRequest;
+import com.beatrix.to_do.dto.auth.VerifyEmailRequest;
 import com.beatrix.to_do.service.AuthenticationService;
 import com.beatrix.to_do.service.RefreshTokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,11 +24,11 @@ public class AuthenticationController {
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<AuthenticationResponse> signUp(
-            @RequestBody RegisterRequest request,
-            HttpServletRequest httpRequest
+    public ResponseEntity<?> signUp(
+            @RequestBody RegisterRequest request
             ){
-        return ResponseEntity.ok(service.register(request,httpRequest));
+        service.register(request);
+        return ResponseEntity.ok("User registered successfully. Check your email for the verification code");
     }
 
     @PostMapping("/login")
@@ -36,5 +37,10 @@ public class AuthenticationController {
             HttpServletRequest httpRequest
     ){
         return ResponseEntity.ok(service.authenticate(request,httpRequest));
+    }
+
+    @PostMapping("/verify-email")
+    public ResponseEntity<AuthenticationResponse> verifyEmail(@RequestBody VerifyEmailRequest request, HttpServletRequest httpRequest) {
+        return ResponseEntity.ok(service.verifyEmail(request,httpRequest));
     }
 }

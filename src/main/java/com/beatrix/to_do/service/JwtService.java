@@ -80,7 +80,7 @@ public class JwtService {
                 .builder()
                 .setSubject(user.getEmail())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 2 * 24 * 60 * 60 *1000)) //2 days
+                .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 *1000)) //7 days
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

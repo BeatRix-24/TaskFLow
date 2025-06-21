@@ -17,3 +17,17 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: 5acae913ffc322
+    password: e26d35346f3aad
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  logging:
+    level:
+      org.springframework.mail: DEBUG
