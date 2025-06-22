@@ -5,6 +5,7 @@ import com.beatrix.to_do.dto.auth.PasswordResetRequest;
 import com.beatrix.to_do.entity.TokenType;
 import com.beatrix.to_do.entity.UserToken;
 import com.beatrix.to_do.entity.User;
+import com.beatrix.to_do.exception.UserNotFoundException;
 import com.beatrix.to_do.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +21,7 @@ public class PasswordResetService {
 
     public void forgotPassword(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new UserNotFoundException("User not found with email : " + request.getEmail()));
 
         UserToken resetToken = userTokenService.createToken(
                 user,

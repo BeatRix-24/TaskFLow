@@ -6,6 +6,9 @@ import com.beatrix.to_do.dto.task.TaskResponse;
 import com.beatrix.to_do.dto.task.TaskUpdateRequest;
 import com.beatrix.to_do.entity.Task;
 import com.beatrix.to_do.entity.User;
+import com.beatrix.to_do.exception.TaskNotFoundException;
+import com.beatrix.to_do.exception.UnauthorizedAcessException;
+import com.beatrix.to_do.exception.UserNotFoundException;
 import com.beatrix.to_do.repository.TaskRepository;
 import com.beatrix.to_do.repository.UserRepository;
 import org.springframework.security.core.Authentication;
@@ -25,7 +28,7 @@ public class TaskService {
         String email = authentication.getName();
 
         return userRepository.findByEmail(email)
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new UserNotFoundException("User not found with email" + email));
     }
 
     public TaskService(TaskRepository taskRepository, UserRepository userRepository){
@@ -68,10 +71,10 @@ public class TaskService {
         User user = getCurrentUser();
 
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(()-> new RuntimeException("Task not found"));
+                .orElseThrow(()-> new TaskNotFoundException("Can not find such task"));
 
         if(!task.getUser().getId().equals(user.getId())){
-            throw new RuntimeException("Not authorized to modify this task");
+            throw new UnauthorizedAcessException("You are not authorized to modify this task");
         }
         task.setDone(true);
         return mapToResponse(taskRepository.save(task));
@@ -83,7 +86,7 @@ public class TaskService {
                 .orElseThrow(()-> new RuntimeException("Task not found"));
 
         if(!task.getUser().getId().equals(user.getId())){
-            throw new RuntimeException("Not authenticated to delete the task");
+            throw new UnauthorizedAcessException("You are not authorized to modify this task");
         }
 
         taskRepository.delete(task);
@@ -95,7 +98,7 @@ public class TaskService {
                 .orElseThrow(()-> new RuntimeException("Task not found"));
 
         if(!task.getUser().getId().equals(user.getId())){
-            throw new RuntimeException("Not authorized to modify this task");
+            throw new UnauthorizedAcessException("You are not authorized to modify this task");
         }
 
         if(request.getTask() != null){

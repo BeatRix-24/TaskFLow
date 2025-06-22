@@ -5,6 +5,8 @@ import com.beatrix.to_do.dto.auth.AuthenticationResponse;
 import com.beatrix.to_do.dto.auth.RegisterRequest;
 import com.beatrix.to_do.dto.auth.VerifyEmailRequest;
 import com.beatrix.to_do.entity.*;
+import com.beatrix.to_do.exception.EmailNotVerifiedException;
+import com.beatrix.to_do.exception.UserNotFoundException;
 import com.beatrix.to_do.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -50,7 +52,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse verifyEmail(VerifyEmailRequest request, HttpServletRequest httpRequest){
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(()-> new RuntimeException("User not found"));
+                .orElseThrow(()-> new UserNotFoundException("User not found with email : " + request.getEmail()));
 
         UserToken userToken = userTokenService.validateToken(
                 request.getOtpCode(),
@@ -84,9 +86,9 @@ public class AuthenticationService {
                 )
         );
         var user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(()-> new UserNotFoundException("User not found with email : " + request.getEmail()));
         if(!user.isVerified()){
-            throw new RuntimeException("Email not verified");
+            throw new EmailNotVerifiedException(user.getEmail() + " this email is not verified");
         }
 
         return issueToken(user,httpRequest);

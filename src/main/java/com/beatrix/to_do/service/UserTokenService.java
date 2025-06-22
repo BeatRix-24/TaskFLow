@@ -3,6 +3,7 @@ package com.beatrix.to_do.service;
 import com.beatrix.to_do.entity.TokenType;
 import com.beatrix.to_do.entity.User;
 import com.beatrix.to_do.entity.UserToken;
+import com.beatrix.to_do.exception.InvalidTokenException;
 import com.beatrix.to_do.repository.UserTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,10 +26,10 @@ public class UserTokenService {
 
     public UserToken validateToken(String token, TokenType tokenType) {
         UserToken userToken = tokenRepository.findByTokenAndTokenTypeAndUsedFalse(token , tokenType)
-                .orElseThrow(() -> new RuntimeException("Invalid Token"));
+                .orElseThrow(() -> new InvalidTokenException("Invalid Token"));
 
         if(userToken.getExpiresAt().isBefore(LocalDateTime.now())){
-            throw new RuntimeException("Token expired");
+            throw new InvalidTokenException("Token expired");
         }
         return userToken;
     }
