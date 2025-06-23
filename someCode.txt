@@ -1,0 +1,100 @@
+Great idea!
+Let’s tackle Search & Filtering of Tasks — this is a practical feature that’ll enhance your app and show off backend skills. Here’s a step-by-step implementation plan with example code.
+🎯 Feature Scope
+
+✅ Support optional query parameters like:
+
+    done (true/false)
+
+    search (keyword in task description)
+
+    createdBefore (date/time)
+
+    createdAfter (date/time)
+
+✅ Example endpoint:
+
+GET /api/v1/tasks?done=true&search=shopping&createdAfter=2025-01-01T00:00:00
+
+🧠 Repository Layer
+
+Use Spring Data JPA @Query or Specification.
+Here’s a JPA Specification example:
+
+Add a new dependency for Specifications (optional):
+(Spring Data JPA already supports Specification via JpaSpecificationExecutor)
+
+Modify your TaskRepository:
+
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Integer>, JpaSpecificationExecutor<Task> {
+    List<Task> findByUserId(Long userId);
+}
+
+🔍 Create a TaskSpecification class
+
+package com.beatrix.to_do.repository;
+
+import com.beatrix.to_do.entity.Task;
+import org.springframework.data.jpa.domain.Specification;
+
+import java.time.LocalDateTime;
+
+public class TaskSpecification {
+    public static Specification<Task> isDone(Boolean done) {
+        return (root, query, cb) -> done == null ? null : cb.equal(root.get("done"), done);
+    }
+
+    public static Specification<Task>descriptionContains(String search) {
+        return (root, query, cb) -> search == null ? null : cb.like(cb.lower(root.get("task")), "%" + search.toLowerCase() + "%");
+    }
+
+    public static Specification<Task> createdBefore(LocalDateTime createdBefore) {
+        return (root, query, cb) -> createdBefore == null ? null : cb.lessThanOrEqualTo(root.get("createdAt"), createdBefore);
+    }
+
+    public static Specification<Task> createdAfter(LocalDateTime createdAfter) {
+        return (root, query, cb) -> createdAfter == null ? null : cb.greaterThanOrEqualTo(root.get("createdAt"), createdAfter);
+    }
+}
+
+🧠 Service Layer
+
+Modify your TaskService to support the filters:
+
+public List<TaskResponse> searchUserTasks(Boolean done, String search, LocalDateTime createdBefore, LocalDateTime createdAfter) {
+    User user = getCurrentUser();
+
+    Specification<Task> spec = Specification.where(TaskSpecification.isDone(done))
+            .and(TaskSpecification.descriptionContains(search))
+            .and(TaskSpecification.createdBefore(createdBefore))
+            .and(TaskSpecification.createdAfter(createdAfter))
+            .and((root, query, cb) -> cb.equal(root.get("user"), user));
+
+    return taskRepository.findAll(spec).stream()
+            .map(this::mapToResponse)
+            .toList();
+}
+
+📮 Controller Layer
+
+Add a new endpoint:
+
+@GetMapping("/search")
+public List<TaskResponse> searchTasks(
+        @RequestParam(required = false) Boolean done,
+        @RequestParam(required = false) String search,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdBefore,
+        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime createdAfter
+) {
+    return taskService.searchUserTasks(done, search, createdBefore, createdAfter);
+}
+
+🧪 Test Example:
+
+GET /api/v1/tasks/search?search=meeting&done=false
+
+✅ Returns all not-done tasks with "meeting" in the description.
+🎯 Next Steps:
+
+Would you also like to implement Pagination (Pageable), or add categories & priorities as you mentioned? Let me know — I can give you that code too! 🎨
