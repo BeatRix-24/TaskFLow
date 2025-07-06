@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AuthenticationController {
 
-    private final AuthenticationService service;
+    private final AuthenticationService authService;
     private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<?> signUp(
             @RequestBody RegisterRequest request
             ){
-        service.register(request);
+        authService.register(request);
         return ResponseEntity.ok("User registered successfully. Check your email for the verification code");
     }
 
@@ -36,11 +36,11 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request,
             HttpServletRequest httpRequest
     ){
-        return ResponseEntity.ok(service.authenticate(request,httpRequest));
+        return ResponseEntity.ok(authService.authenticate(request,httpRequest));
     }
 
     @PostMapping("/verify-email")
     public ResponseEntity<AuthenticationResponse> verifyEmail(@RequestBody VerifyEmailRequest request, HttpServletRequest httpRequest) {
-        return ResponseEntity.ok(service.verifyEmail(request,httpRequest));
+        return ResponseEntity.ok(authService.verifyEmail(request,httpRequest));
     }
 }

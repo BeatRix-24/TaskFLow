@@ -6,6 +6,7 @@ import com.beatrix.to_do.dto.auth.RegisterRequest;
 import com.beatrix.to_do.dto.auth.VerifyEmailRequest;
 import com.beatrix.to_do.entity.*;
 import com.beatrix.to_do.exception.EmailNotVerifiedException;
+import com.beatrix.to_do.exception.InvalidOtpException;
 import com.beatrix.to_do.exception.UserNotFoundException;
 import com.beatrix.to_do.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,8 +15,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class AuthenticationService {
     private final RefreshTokenService refreshTokenService;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService;
-    private final UserTokenService userTokenService;
+    private final OtpRedisService redisService;
 
     private User saveUser(RegisterRequest request){
         User user = User.builder()
@@ -43,10 +42,10 @@ public class AuthenticationService {
 
     public void register(RegisterRequest request) {
         User user = saveUser(request);
-        UserToken emailToken = userTokenService.createToken(
-                user,
-                TokenType.EMAIL_VERIFICATION , 2);
-        emailService.sendVerificationEmail(user.getEmail(),emailToken.getToken());
+
+        String generatedOtp = redisService.generateOtp();
+        redisService.saveOtp("VERIFY", user.getEmail(), generatedOtp);
+        emailService.sendVerificationEmail(user.getEmail(), generatedOtp);
     }
 
 
@@ -54,15 +53,13 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new UserNotFoundException("User not found with email : " + request.getEmail()));
 
-        UserToken userToken = userTokenService.validateToken(
-                request.getOtpCode(),
-                TokenType.EMAIL_VERIFICATION
-        );
-
+        String storedOtp = redisService.getOtp("VERIFY", user.getEmail());
+        if(storedOtp == null || !storedOtp.equals(request.getOtpCode())){
+            throw new InvalidOtpException("Invalid or expired OTP");
+        }
         user.setVerified(true);
         userRepository.save(user);
 
-        userTokenService.markUsed(userToken);
         return issueToken(user,httpRequest);
     }
 

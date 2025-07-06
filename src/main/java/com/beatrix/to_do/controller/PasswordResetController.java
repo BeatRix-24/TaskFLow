@@ -18,7 +18,7 @@ public class PasswordResetController {
 
    @PostMapping("/forgot-password")
     public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequest request){
-      passwordResetService.forgotPassword(request);
+      passwordResetService.sendOtpForPasswordReset(request);
       return ResponseEntity.ok("Reset email sent successfully");
    }
 

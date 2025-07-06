@@ -2,9 +2,8 @@ package com.beatrix.to_do.service;
 
 import com.beatrix.to_do.dto.auth.ForgotPasswordRequest;
 import com.beatrix.to_do.dto.auth.PasswordResetRequest;
-import com.beatrix.to_do.entity.TokenType;
-import com.beatrix.to_do.entity.UserToken;
 import com.beatrix.to_do.entity.User;
+import com.beatrix.to_do.exception.InvalidOtpException;
 import com.beatrix.to_do.exception.UserNotFoundException;
 import com.beatrix.to_do.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,33 +13,36 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class PasswordResetService {
-    private final UserTokenService userTokenService;
+    private final OtpRedisService redisService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    public void forgotPassword(ForgotPasswordRequest request) {
+
+
+    public void sendOtpForPasswordReset(ForgotPasswordRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(()-> new UserNotFoundException("User not found with email : " + request.getEmail()));
 
-        UserToken resetToken = userTokenService.createToken(
-                user,
-                TokenType.PASSWORD_RESET,
-                2
-        );
-        emailService.sendPasswordResetEmail(user.getEmail(),resetToken.getToken());
+        String generatedOtp = redisService.generateOtp();
+        redisService.saveOtp("RESET", user.getEmail(), generatedOtp);
+
+        emailService.sendPasswordResetEmail(user.getEmail(), generatedOtp);
     }
 
     public void resetPassword(PasswordResetRequest request) {
-        UserToken resetToken = userTokenService.validateToken(
-                request.getToken(),
-                TokenType.PASSWORD_RESET
-        );
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(()-> new UserNotFoundException("User not found with email : " + request.getEmail()));
 
-        User user = resetToken.getUser();
+        String storedOtp = redisService.getOtp("RESET", user.getEmail());
+
+        if(storedOtp == null || !storedOtp.equals(request.getToken())){
+            throw new InvalidOtpException("Invalid or expired OTP");
+        }
+
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         userRepository.save(user);
 
-        userTokenService.markUsed(resetToken);
+        redisService.invalidateOtp("RESET", user.getEmail());
     }
 }
