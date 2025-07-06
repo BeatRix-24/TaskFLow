@@ -2,10 +2,13 @@ spring:
   application:
     name: to-do
 
+  jwt:
+    secret: ${JWT_SECRET}
+
   datasource:
-    url: jdbc:postgresql://localhost:5432/todo_db
-    username: todo_user
-    password: a6f41ce@DB
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -17,17 +20,19 @@ spring:
         format_sql: true
     database: postgresql
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+
   mail:
-    host: sandbox.smtp.mailtrap.io
-    port: 2525
-    username: 5acae913ffc322
-    password: e26d35346f3aad
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+
   logging:
     level:
       org.springframework.mail: DEBUG
