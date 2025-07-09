@@ -1,0 +1,47 @@
+name: taskFlow
+
+services:
+  db:
+    image: postgres:16.9-alpine3.22
+    container_name: postgres
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - taskflow-net
+
+  redis:
+    image: redis:7.0.15-alpine3.20
+    container_name: redis
+    volumes:
+      - redisdata:/data
+    networks:
+      - taskflow-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: springboot-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+    networks:
+      - taskflow-net
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  taskflow-net:
+    driver: bridge
